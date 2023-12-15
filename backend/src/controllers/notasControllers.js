@@ -1,6 +1,7 @@
 const notasControllers = {};
 
-const Nota = require('../models/notasModel.js');
+const Nota = require('../models/notasModel');
+const Comentario = require('../models/comentarioModel');
 
 // Obtener todas las notas
 notasControllers.getNotas = async (req, res) => {
@@ -81,6 +82,72 @@ notasControllers.eliminarNota = async (req, res) => {
     }
 
     res.json({ mensaje: 'Nota eliminada' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+// Función para obtener comentarios (usada para obtener, no crear)
+notasControllers.getComentarios = async (req, res) => {
+  try {
+    const comentarios = await Comentario.find({ notaId: req.params.id });
+    res.json(comentarios);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Función para crear un nuevo comentario
+notasControllers.crearComentario = async (req, res) => {
+  try {
+    const { autor, contenido } = req.body;
+    const nuevoComentario = new Comentario({
+      autor,
+      contenido,
+      nota: req.params.id,
+    });
+
+    await nuevoComentario.validate();
+    await nuevoComentario.save();
+
+    res.json({ mensaje: 'Comentario guardado' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+// Actualizar un comentario existente
+notasControllers.actualizarComentario = async (req, res) => {
+  try {
+    const { contenido } = req.body;
+    await Comentario.findByIdAndUpdate(req.params.comentarioId, {
+      contenido,
+    });
+
+    const comentarioActualizado = await Comentario.findById(req.params.comentarioId);
+
+    if (!comentarioActualizado) {
+      res.status(404).json({ mensaje: 'El comentario no se pudo actualizar' });
+      return;
+    }
+
+    res.json({ mensaje: 'Comentario actualizado' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Eliminar un comentario existente
+notasControllers.eliminarComentario = async (req, res) => {
+  try {
+    const comentario = await Comentario.findByIdAndDelete(req.params.comentarioId);
+
+    if (!comentario) {
+      res.status(404).json({ mensaje: 'No se encontró el comentario' });
+      return;
+    }
+
+    res.json({ mensaje: 'Comentario eliminado' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

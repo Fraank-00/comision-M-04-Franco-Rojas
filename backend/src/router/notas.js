@@ -1,22 +1,24 @@
 const { Router } = require('express');
 const router = Router();
-const {
-  getNotas,
-  crearNota,
-  getNota,
-  actualizarNota,
-  eliminarNota,
-} = require('../controllers/notasControllers');
+const notasControllers = require('../controllers/notasControllers');
 
-// Ruta para obtener todas las notas y crear una nueva nota
+// Rutas para notas
 router.route('/')
-  .get(getNotas)
-  .post(crearNota);
+  .get(notasControllers.getNotas)
+  .post(notasControllers.crearNota);
 
-// Ruta para obtener una nota por su ID, actualizar una nota existente y eliminar una nota
 router.route('/:id')
-  .get(getNota)
-  .put(actualizarNota)
-  .delete(eliminarNota);
+  .get(notasControllers.getNota)
+  .put(notasControllers.actualizarNota)
+  .delete(notasControllers.eliminarNota);
+
+// Rutas para comentarios
+router.route('/:id/comentarios')
+  .get(notasControllers.getComentarios)
+  .post(notasControllers.crearComentario);
+
+router.route('/:id/comentarios/:comentarioId')
+  .put(notasControllers.actualizarComentario)
+  .delete(notasControllers.eliminarComentario);
 
 module.exports = router;
